@@ -1,0 +1,9 @@
+version: '3'
+services:
+  # spark-master:
+  # image: spark:python3
+  spark-interactive:
+    image: spark:python3
+    # environment: 
+    # - SPARK_DRIVER_BIND_ADDRESS: spark-master
+    command: /opt/spark/bin/pyspark
