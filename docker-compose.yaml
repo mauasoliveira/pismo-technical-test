@@ -1,9 +1,11 @@
 services:
-  version: '3'
   # spark-master:
   # image: spark:python3
-  spark-interactive:
-    image: spark:python3
+  pismo-app:
+    build: .
     # environment: 
     # - SPARK_DRIVER_BIND_ADDRESS: spark-master
-    command: /opt/spark/bin/pyspark
+    volumes:
+      - ./data/:/data/
+      - ./pismo.py:/app/pismo.py
+      - ./output:/output
