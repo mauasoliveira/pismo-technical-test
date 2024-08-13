@@ -37,6 +37,7 @@ if __name__ == '__main__':
     .where(col('row_number') == 1)\
     .drop('row_number')
 
+
     print('Time partitioning')
     date_column = 'timestamp'
 
@@ -46,6 +47,4 @@ if __name__ == '__main__':
     .withColumn('day', F.dayofmonth(date_column))
 
     print('Saving to /output')
-    final.write.mode('overwrite').partitionBy(['domain', 'year', 'month', 'day']).parquet('/output/pismo-data/')
-
-    # Moves the output to /data/output
+    final.repartition('domain', 'timestamp').write.mode('overwrite').partitionBy(['domain', 'year', 'month', 'day']).parquet('/output/pismo-data/')
