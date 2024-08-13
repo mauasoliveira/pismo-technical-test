@@ -1,6 +1,6 @@
 services:
   pismo-data:
-    build: /data/
+    build: ./data/
     volumes:
       - ./data/:/app/
   pismo-app:

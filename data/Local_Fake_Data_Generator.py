@@ -1,5 +1,5 @@
 """
-Token from: https://github.com/eder1985/pismo_recruiting_technical_case/tree/main
+Taken from: https://github.com/eder1985/pismo_recruiting_technical_case/tree/main
 
 Modifications:
     * Added total registries to create
