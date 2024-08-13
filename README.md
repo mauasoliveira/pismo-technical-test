@@ -34,7 +34,7 @@ The Spark application executes the following:
 
 # Images
 
-The project consists on three base images:
+The project consists on two base images:
 
 * Python (alpine): to generate data
 * Custom image based on Bitnami Spark to execute Pismo application
