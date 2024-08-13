@@ -1,38 +1,4 @@
 services:
-  spark:
-    image: docker.io/bitnami/spark:3.5
-    volumes:
-      - pismo-data:/data
-      - output-data:/output/
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-      - SPARK_USER=root
-    ports:
-      - "8080:8080"
-
-  spark-worker:
-    image: docker.io/bitnami/spark:3.5
-    depends_on:
-      spark:
-        condition: service_started
-    volumes:
-      - pismo-data:/data
-      - output-data:/output/
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-      - SPARK_USER=root
-
   pismo-data:
     build: ./data/
     volumes:
@@ -43,19 +9,16 @@ services:
     depends_on:
       pismo-data:
         condition: service_completed_successfully
-      spark-worker:
-        condition: service_started
     build: .
     ports:
       - "4040:4040"
     environment:
-      - SPARK_MASTER=spark://spark:7077
+      - SPARK_MASTER=local[*]
       - SPARK_USER=root
     volumes:
       - pismo-data:/data/
-      - output-data:/output/
+      - ./output/:/output/
       - ./pismo.py:/app/pismo.py
 
 volumes:
   pismo-data:
-  output-data:
