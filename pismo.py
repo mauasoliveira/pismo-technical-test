@@ -5,9 +5,13 @@ import pyspark.sql.functions as F
 from pyspark.sql.functions import col
 from glob import glob
 import sys
+from os import getenv
 
 if __name__ == '__main__':
-    spark = SparkSession.builder.getOrCreate()
+    print('Pismo Technical Data Engineering Test Application ')
+
+    print('Creating Spark Application')
+    spark = SparkSession.builder.master(getenv('SPARK_MASTER')).getOrCreate()
 
     if len(glob('/data/*.json')) == 0:
         print('Warning! Add sample data to process on `/data/` directory')

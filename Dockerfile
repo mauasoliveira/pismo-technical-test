@@ -1,9 +1,9 @@
-FROM spark:3.5.2-python3
+# FROM spark:3.5.2-python3
+FROM docker.io/bitnami/spark:3.5
 
 USER root
 RUN pip install pyspark==3.5.2
 
-USER spark
 WORKDIR /app
 COPY pismo.py /app/pismo.py
 

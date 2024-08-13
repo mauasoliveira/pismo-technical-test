@@ -8,6 +8,7 @@ This used the fake data generator found on the repository: https://github.com/ed
 
 * Docker environment
 * Docker compose configured
+* Local port 8080 available to Spark Application
 
 # Usage
 
@@ -19,6 +20,8 @@ docker compose up
 
 ```
 
+A Spark Application UI will be available via [port-forward](http://localhost:8080)
+
 The environment will create new test data - using [Fake Data Generator](./data/Local_Fake_Data_Generator.py) - and execute the test.
 
 The Spark application executes the following:
@@ -29,3 +32,13 @@ The Spark application executes the following:
 4) Partition by domain and date information
 
 The output data will be stored on `/data/output/`
+
+# Images
+
+The project consists on three base images:
+
+* Python (alpine): to generate data
+* [Bitnami Spark](https://hub.docker.com/r/bitnami/spark): to execute and simulate a Spark cluster
+* Custom image based on Bitnami Spark to execute Pismo application
+
+Bitnami Spark image was chosen due to the easy of use and pre-configuration.
