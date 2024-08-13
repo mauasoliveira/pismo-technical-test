@@ -14,7 +14,7 @@ if __name__ == '__main__':
         sys.exit()
 
     print('Reading /data/*.json')
-    source = spark.read.json('/data/*.json')
+    source = spark.read.option('multiline', True).json('/data/*.json')
 
     print('Adding identifiers column')
     domain_data = source\

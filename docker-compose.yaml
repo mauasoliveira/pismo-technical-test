@@ -1,5 +1,12 @@
 services:
+  pismo-data:
+    build: /data/
+    volumes:
+      - ./data/:/app/
   pismo-app:
+    depends_on:
+      pismo-data:
+        condition: service_completed_successfully
     build: .
     volumes:
       - ./data/:/data/
