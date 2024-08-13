@@ -20,7 +20,7 @@ import os
 BATCHES = 2
 TOTAL = 10_000
 DUPLICATION_RATE = 0.1
-DESTINATION_PATH = '/app/'
+DESTINATION_PATH = '/data/'
 
 class EventTypeProvider(BaseProvider):
     def event_type(self):

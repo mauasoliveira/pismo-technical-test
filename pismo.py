@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from pyspark.sql.session import SparkSession
+import shutil
 from pyspark.sql import Window
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col
 from glob import glob
 import sys
-from os import getenv
+from os import getenv, listdir
 
 if __name__ == '__main__':
     print('Pismo Technical Data Engineering Test Application ')
@@ -45,4 +46,6 @@ if __name__ == '__main__':
     .withColumn('day', F.dayofmonth(date_column))
 
     print('Saving to /output')
-    final.write.mode('overwrite').partitionBy(['domain', 'year', 'month', 'day']).parquet('/data/output')
+    final.write.mode('overwrite').partitionBy(['domain', 'year', 'month', 'day']).parquet('/output/pismo-data/')
+
+    # Moves the output to /data/output
