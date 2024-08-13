@@ -3,10 +3,15 @@ from pyspark.sql.session import SparkSession
 from pyspark.sql import Window
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col
+from glob import glob
+import sys
 
 if __name__ == '__main__':
     spark = SparkSession.builder.getOrCreate()
-    # .master('spark://spark-master')
+
+    if len(glob('/data/*.json')) == 0:
+        print('Warning! Add sample data to process on `/data/` directory')
+        sys.exit()
 
     print('Reading /data/*.json')
     source = spark.read.json('/data/*.json')
@@ -23,19 +28,17 @@ if __name__ == '__main__':
     .withColumn('row_number', F.row_number().over(pismo_window))
 
     print('Total Duplicated registries', duplicated.where(col('row_number') > 1).count())
-    pismo_data = duplicated
-
+    pismo_data = duplicated\
     .where(col('row_number') == 1)\
     .drop('row_number')
 
     print('Time partitioning')
     date_column = 'timestamp'
 
-    pismo_data = domain_id\
+    final = pismo_data\
     .withColumn('year', F.year(date_column))\
     .withColumn('month', F.month(date_column))\
     .withColumn('day', F.dayofmonth(date_column))
 
     print('Saving to /output')
-    pismo_data.write.partitionBy(['domain', 'year', 'month', 'day']).parquet('/output')
-
+    final.write.mode('overwrite').partitionBy(['domain', 'year', 'month', 'day']).parquet('/data/output')

@@ -1,11 +1,6 @@
 services:
-  # spark-master:
-  # image: spark:python3
   pismo-app:
     build: .
-    # environment: 
-    # - SPARK_DRIVER_BIND_ADDRESS: spark-master
     volumes:
       - ./data/:/data/
       - ./pismo.py:/app/pismo.py
-      - ./output:/output
