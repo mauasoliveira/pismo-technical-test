@@ -3,32 +3,40 @@ services:
   hadoop-namenode:
     image: apache/hadoop:3
     command: [ "hdfs", "namenode" ]
+    user: root
     ports:
       - 9870:9870
     env_file:
-      - ./hadoop_config
+      - ./hadoop.env
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
     environment:
         ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
 
   hadoop-datanode:
     image: apache/hadoop:3
     command: ["hdfs", "datanode"]
+    user: root
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
     env_file:
-      - ./hadoop_config      
+      - ./hadoop.env      
 
   hadoop-resourcemanager:
     image: apache/hadoop:3
+    user: root
     command: ["yarn", "resourcemanager"]
     ports:
        - 8088:8088
     env_file:
-      - ./hadoop_config
+      - ./hadoop.env
 
   hadoop-nodemanager:
     image: apache/hadoop:3
+    user: root
     command: ["yarn", "nodemanager"]
     env_file:
-      - ./hadoop_config
+      - ./hadoop.env
 
   # --- Spark
   spark-master:
@@ -89,3 +97,6 @@ services:
     volumes:
       - ./app:/home/jovyan/work
 
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
