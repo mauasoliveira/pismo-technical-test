@@ -70,7 +70,7 @@ services:
 
   # --- Jupyter
   jupyter-notebook:
-    image: jupyter/pyspark-notebook
+    build: ./jupyter/
     depends_on:
       - spark-master
       - spark-worker-0
@@ -82,6 +82,8 @@ services:
       - DOCKER_STACKS_JUPYTER_CMD=notebook
       - CHOWN_EXTRA=/home/jovyan/work
       - CHOWN_EXTRA_OPTS=-R
+      - SPARK_MASTER=spark://spark-master:7077
+      - HDFS_NAMENODE=hdfs://hadoop-namenode:9000
 
     command: [ "start-notebook.py", "--IdentityProvider.token=''" ]
     volumes:
