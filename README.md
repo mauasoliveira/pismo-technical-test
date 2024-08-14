@@ -20,6 +20,8 @@ docker compose up
 
 ```
 
+> NOTE: It takes a while to provision the full application due to HDFS configuration
+
 Some applications will be available:
 
 * [Spark Master](http://localhost:8080)
@@ -29,3 +31,12 @@ Some applications will be available:
 * [Jupyter environment](http://localhost:8888)
 
 The full application and documentation is on the notebook [Pismo_DE_Test](http://localhost:8888/notebooks/work/Pismo_DE_Test.ipynb)
+
+
+# Shutdown
+
+To clear the project, just stop Docker environment:
+
+```bash
+docker compose down
+```
