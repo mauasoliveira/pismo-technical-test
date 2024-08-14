@@ -1,2 +1,0 @@
-faker
-pyspark==3.5.1

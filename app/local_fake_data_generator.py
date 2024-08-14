@@ -5,22 +5,24 @@ Modifications:
     * Added total registries to create
     * Added duplication rate
     * Added execution batches
+    * Saving on HDFS
+    * Unique filenames
 
 """
 from faker import Faker
 from faker.providers import BaseProvider
 from datetime import datetime
 from json import dumps
-import pandas as pd
 import random
 import collections
 import glob
 import os
+from hdfs import InsecureClient
 
-BATCHES = 2
+BATCHES = 5
 TOTAL = 10_000
 DUPLICATION_RATE = 0.1
-DESTINATION_PATH = '/data/'
+DESTINATION_PATH = '/pismo-data/source/'
 
 class EventTypeProvider(BaseProvider):
     def event_type(self):
@@ -62,7 +64,7 @@ def custom_data(fake):
 def write_fake_data(fake, length, destination_path, unique_uuid = True):
     database = []
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = 'fake_events_'+current_time
+    filename = 'fake_events_'+str(fake.uuid4())+'_'+current_time
 
     for x in range(length):
         uuid = fake.uuid4() if unique_uuid else fake.custom_uuid()
@@ -77,15 +79,12 @@ def write_fake_data(fake, length, destination_path, unique_uuid = True):
             ('data', custom_data(fake).get(event_type))
         ]))
 
-    with open('%s%s.json' % (destination_path, filename), 'w') as output:
+    hdfs_client = InsecureClient(os.getenv('WEBHDFS_NODE'), user=os.getenv('HDFS_USER'))
+
+    with hdfs_client.write('%s%s.json' % (destination_path, filename), encoding='utf-8') as output:
         output.write(dumps(database, indent=4, sort_keys=False, default=str))
 
-    print("Done.")
-
-def read_fake_data(json_filepath):
-    json_files = [os.path.normpath(i) for i in glob.glob(json_filepath)]
-    df = pd.concat([pd.read_json(f) for f in json_files])
-    return df
+    print(f"Local Fake Data Generator: Wrote fake data {length = } {destination_path = } {filename = } {unique_uuid = } ")
 
 def run(length, unique_uuid = True):
     fake = Faker()
@@ -94,16 +93,12 @@ def run(length, unique_uuid = True):
     fake.add_provider(CustomUUIDProvider)
     fake.add_provider(EventTypeProvider)
 
-    write_fake_data(fake, length, DESTINATION_PATH,unique_uuid)
+    write_fake_data(fake, length, DESTINATION_PATH, unique_uuid)
 
-    json_filepath = DESTINATION_PATH+'*.json'
-    fake_data = read_fake_data(json_filepath)
-    # print(fake_data)
-
-def main():
-    for _ in range(BATCHES):
-        run(TOTAL)
-        run(int(TOTAL * DUPLICATION_RATE),unique_uuid = False)
+def main(batches = BATCHES, total = TOTAL, duplication_rate = DUPLICATION_RATE):
+    for _ in range(batches):
+        run(total)
+        run(int(total * duplication_rate),unique_uuid = False)
 
 if __name__ == "__main__":
     main()
