@@ -2,8 +2,7 @@ services:
   # --- Hadoop
   hadoop-namenode:
     image: apache/hadoop:3
-    command: [ "hdfs", "namenode" ]
-    user: root
+    command: ["hdfs", "namenode" ]
     ports:
       - 9870:9870
     env_file:
@@ -16,7 +15,6 @@ services:
   hadoop-datanode:
     image: apache/hadoop:3
     command: ["hdfs", "datanode"]
-    user: root
     volumes:
       - hadoop_datanode:/hadoop/dfs/data
     env_file:
@@ -24,7 +22,6 @@ services:
 
   hadoop-resourcemanager:
     image: apache/hadoop:3
-    user: root
     command: ["yarn", "resourcemanager"]
     ports:
        - 8088:8088
@@ -33,17 +30,27 @@ services:
 
   hadoop-nodemanager:
     image: apache/hadoop:3
-    user: root
     command: ["yarn", "nodemanager"]
     env_file:
       - ./hadoop.env
 
-  # --- Spark
-  spark-master:
-    image: docker.io/bitnami/spark:3.5
+  hadoop-permissions:
+    image: apache/hadoop:3
+    env_file: 
+      - ./hadoop.env
+    command: bash -c "sleep 30 && hdfs dfs -mkdir /pismo-data && hdfs dfs -chown jovyan:jovyan /pismo-data" # [ "tail", "-f", "/dev/null" ]
     depends_on:
       - hadoop-namenode
+      - hadoop-datanode
+      - hadoop-resourcemanager
       - hadoop-nodemanager
+
+  # --- Spark
+  spark-master:
+    image: docker.io/bitnami/spark:3.5.0
+    depends_on:
+      hadoop-permissions:
+        condition: service_completed_successfully
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -58,7 +65,7 @@ services:
       - ./app/:/opt/workspace
 
   spark-worker-0:
-    image: docker.io/bitnami/spark:3.5
+    image: docker.io/bitnami/spark:3.5.0
     ports:
       - 8081:8081
     depends_on:
@@ -91,7 +98,7 @@ services:
       - CHOWN_EXTRA=/home/jovyan/work
       - CHOWN_EXTRA_OPTS=-R
       - SPARK_MASTER=spark://spark-master:7077
-      - HDFS_NAMENODE=hdfs://hadoop-namenode:9000
+      - HDFS_NAMENODE=hdfs://hadoop-namenode:8020
 
     command: [ "start-notebook.py", "--IdentityProvider.token=''" ]
     volumes:
