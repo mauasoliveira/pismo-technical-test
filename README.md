@@ -6,9 +6,9 @@ This used the fake data generator found on the repository: https://github.com/ed
 
 # Requirements
 
-* Docker environment
 * Docker compose configured
-* Local port 4040 available to Spark Application
+* Docker environment
+* Local port 4040, 8080, 8088, 8888 and 9870 available to Cluster Application
 
 # Usage
 
@@ -20,23 +20,12 @@ docker compose up
 
 ```
 
-A Spark Application UI will be available via [port-forward](http://localhost:4040)
+Some applications will be available:
 
-The environment will create new test data - using [Fake Data Generator](./data/Local_Fake_Data_Generator.py) - and execute the test.
+* [Spark Master](http://localhost:8080)
+* [Spark Job](http://localhost:4040)
+* [HDFS Namenode](http://localhost:9870)
+* [HDFS Resource Manager](http://localhost:8088)
+* [Jupyter environment](http://localhost:8888)
 
-The Spark application executes the following:
-
-1) Load data from volume `pismo-data`
-2) Adds domain and unique identifiers columns ( `unique_event` and `domain_id` )
-3) Deletes duplicated data using windowed partition and row_number
-4) Partition by domain and date information
-5) Save the result on path `./output/pismo-data/`
-
-# Images
-
-The project consists on three base images:
-
-* Python (alpine): to generate data
-* Custom image based on Bitnami Spark to execute Pismo application
-
-Bitnami Spark image was chosen due to the easy of use and pre-configuration.
+The full application and documentation is on the notebook [Pismo_DE_Test](http://localhost:8888/notebooks/work/Pismo_DE_Test.ipynb)

@@ -66,8 +66,24 @@ services:
 
   spark-worker-0:
     image: docker.io/bitnami/spark:3.5.0
-    ports:
-      - 8081:8081
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    volumes:
+      - ./app/:/opt/workspace
+
+
+  spark-worker-1:
+    image: docker.io/bitnami/spark:3.5.0
     depends_on:
       - spark-master
     environment:
@@ -99,6 +115,8 @@ services:
       - CHOWN_EXTRA_OPTS=-R
       - SPARK_MASTER=spark://spark-master:7077
       - HDFS_NAMENODE=hdfs://hadoop-namenode:8020
+      - WEBHDFS_NODE=http://hadoop-namenode:9870
+      - HDFS_USER=jovyan
 
     command: [ "start-notebook.py", "--IdentityProvider.token=''" ]
     volumes:

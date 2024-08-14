@@ -1,6 +1,0 @@
-faker
-pyspark==3.5.2
-rich
-pandas
-pyarrow
-
