@@ -1,2 +1,6 @@
 faker
-pyspark==3.5.1
+pyspark==3.5.2
+rich
+pandas
+pyarrow
+

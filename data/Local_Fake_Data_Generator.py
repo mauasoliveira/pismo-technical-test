@@ -100,6 +100,7 @@ def run(length, unique_uuid = True):
     fake_data = read_fake_data(json_filepath)
     # print(fake_data)
 
+
 def main():
     for _ in range(BATCHES):
         run(TOTAL)
