@@ -1,0 +1,102 @@
+services:
+  # --- Hadoop
+  hadoop-namenode:
+    image: apache/hadoop:3
+    command: [ "hdfs", "namenode" ]
+    user: root
+    ports:
+      - 9870:9870
+    env_file:
+      - ./hadoop.env
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+        ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+
+  hadoop-datanode:
+    image: apache/hadoop:3
+    command: ["hdfs", "datanode"]
+    user: root
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    env_file:
+      - ./hadoop.env      
+
+  hadoop-resourcemanager:
+    image: apache/hadoop:3
+    user: root
+    command: ["yarn", "resourcemanager"]
+    ports:
+       - 8088:8088
+    env_file:
+      - ./hadoop.env
+
+  hadoop-nodemanager:
+    image: apache/hadoop:3
+    user: root
+    command: ["yarn", "nodemanager"]
+    env_file:
+      - ./hadoop.env
+
+  # --- Spark
+  spark-master:
+    image: docker.io/bitnami/spark:3.5
+    depends_on:
+      - hadoop-namenode
+      - hadoop-nodemanager
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    ports:
+      - 7077:7077
+      - 8080:8080
+    volumes:
+      - ./app/:/opt/workspace
+
+  spark-worker-0:
+    image: docker.io/bitnami/spark:3.5
+    ports:
+      - 8081:8081
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    volumes:
+      - ./app/:/opt/workspace
+
+  # --- Jupyter
+  jupyter-notebook:
+    build: ./jupyter/
+    depends_on:
+      - spark-master
+      - spark-worker-0
+    ports:
+      - 8888:8888
+      - 4040:4040
+    user: root
+    environment:
+      - DOCKER_STACKS_JUPYTER_CMD=notebook
+      - CHOWN_EXTRA=/home/jovyan/work
+      - CHOWN_EXTRA_OPTS=-R
+      - SPARK_MASTER=spark://spark-master:7077
+      - HDFS_NAMENODE=hdfs://hadoop-namenode:9000
+
+    command: [ "start-notebook.py", "--IdentityProvider.token=''" ]
+    volumes:
+      - ./app:/home/jovyan/work
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
